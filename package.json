@@ -1,0 +1,17 @@
+{
+  "name": "pearfit-mobile-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PearFit 梨形减脂 PWA mobile app.",
+  "scripts": {
+    "start": "node server.js 4173",
+    "preview": "node server.js 4173"
+  },
+  "keywords": [
+    "pwa",
+    "fitness",
+    "nutrition",
+    "pearfit"
+  ],
+  "license": "UNLICENSED"
+}

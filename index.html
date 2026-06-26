@@ -1,0 +1,2065 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b68">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PearFit">
+  <title>梨形减脂仪表盘</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --panel-2: #f0f5f4;
+      --ink: #17212b;
+      --muted: #64727f;
+      --line: #dce3e8;
+      --teal: #2b8f8b;
+      --teal-dark: #176b68;
+      --coral: #dd685b;
+      --green: #438b5b;
+      --gold: #bd8b2d;
+      --blue: #386fa4;
+      --shadow: 0 14px 40px rgba(23, 33, 43, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    a {
+      color: var(--teal-dark);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 326px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      padding: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 24px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      background: var(--panel-2);
+      outline: none;
+    }
+
+    .nav-icon {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--teal-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 10px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(43, 143, 139, 0.14);
+      outline: none;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafb;
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented label {
+      display: grid;
+      min-height: 34px;
+      place-items: center;
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .segmented input:checked + label {
+      background: var(--ink);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .side-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(43, 143, 139, 0.12);
+      outline: none;
+    }
+
+    .button.primary {
+      border-color: var(--teal-dark);
+      background: var(--teal-dark);
+      color: #fff;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .topbar p {
+      max-width: 760px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .status-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .install-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--teal-dark);
+      border-radius: 999px;
+      background: var(--teal-dark);
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .install-button[hidden] {
+      display: none;
+    }
+
+    .install-button:hover,
+    .install-button:focus-visible {
+      box-shadow: 0 0 0 3px rgba(43, 143, 139, 0.16);
+      outline: none;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.15fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .scene-panel,
+    .metric,
+    .module,
+    .plan-item,
+    .meal-item,
+    .habit-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .scene-panel {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 330px;
+      overflow: hidden;
+    }
+
+    .scene-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 0;
+    }
+
+    .scene-head h3,
+    .module h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .scene-head span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    #fitScene {
+      width: 100%;
+      height: 256px;
+      display: block;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric {
+      display: grid;
+      min-height: 157px;
+      padding: 16px;
+      align-content: space-between;
+      gap: 12px;
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric h3 {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-value {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .metric-value small {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .metric-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef6f4;
+      color: var(--teal-dark);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge.coral {
+      background: #fff0ed;
+      color: #9a3d33;
+    }
+
+    .badge.gold {
+      background: #fff7e6;
+      color: #7d5918;
+    }
+
+    .progress-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e7edf0;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal-dark);
+      transition: width 240ms ease;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .module {
+      padding: 16px;
+    }
+
+    .module-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .module-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .chart-wrap {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .ring {
+      position: relative;
+      width: 150px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(var(--teal-dark) var(--ring, 0%), #e8eef1 0);
+    }
+
+    .ring::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .ring-text {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .ring-text small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .macro-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .macro {
+      display: grid;
+      grid-template-columns: 92px 1fr 52px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .macro span:first-child {
+      color: var(--muted);
+    }
+
+    .macro-line {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef1;
+    }
+
+    .macro-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+    }
+
+    .macro:nth-child(2) .macro-fill {
+      background: var(--coral);
+    }
+
+    .macro:nth-child(3) .macro-fill {
+      background: var(--gold);
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(150px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .plan-item {
+      min-width: 150px;
+      padding: 12px;
+      box-shadow: none;
+    }
+
+    .plan-day {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .plan-item h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .plan-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .meal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .meal-item {
+      padding: 12px;
+      box-shadow: none;
+    }
+
+    .meal-item h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .meal-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .daily-menu {
+      display: grid;
+      gap: 14px;
+    }
+
+    .today-menu {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .menu-card {
+      display: grid;
+      gap: 8px;
+      min-height: 142px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .menu-time {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .menu-card h4,
+    .menu-row h4 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .menu-card p,
+    .menu-row p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: var(--line);
+    }
+
+    .weekly-menu {
+      display: grid;
+      gap: 8px;
+    }
+
+    .menu-row {
+      display: grid;
+      grid-template-columns: 72px repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .menu-day {
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .meal-detail {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .fruit-chip {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 24px;
+      align-items: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #fff7e6;
+      color: #7d5918;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .coffee-note {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #cfe3e0;
+      border-radius: 8px;
+      background: #f1faf8;
+      color: var(--teal-dark);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .habits {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .habit-item {
+      position: relative;
+      min-height: 104px;
+      padding: 12px;
+      box-shadow: none;
+      cursor: pointer;
+    }
+
+    .habit-item input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .habit-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    .checkmark {
+      display: grid;
+      flex: 0 0 auto;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: transparent;
+    }
+
+    .habit-item:has(input:checked) {
+      border-color: rgba(43, 143, 139, 0.55);
+      background: #f1faf8;
+    }
+
+    .habit-item input:checked ~ .habit-title .checkmark {
+      border-color: var(--teal-dark);
+      background: var(--teal-dark);
+      color: #fff;
+    }
+
+    .habit-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .log-form {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .mini-label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mini-label input {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 9px;
+    }
+
+    .trend-area {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    #trendCanvas {
+      width: 100%;
+      height: 210px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .history {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      max-height: 210px;
+      overflow: auto;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .history-row strong {
+      color: var(--ink);
+    }
+
+    .notice {
+      display: flex;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid #f0d6a3;
+      border-radius: 8px;
+      background: #fffaf0;
+      color: #6d4c12;
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    .notice strong {
+      flex: 0 0 auto;
+    }
+
+    .refs {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.75;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      max-width: min(360px, calc(100vw - 44px));
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .overview,
+      .grid-2,
+      .trend-area {
+        grid-template-columns: 1fr;
+      }
+
+      .plan-grid {
+        grid-template-columns: repeat(7, 170px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 72px;
+      }
+
+      .side {
+        position: static;
+        order: 2;
+        height: auto;
+        padding: 18px;
+        border-top: 1px solid var(--line);
+      }
+
+      .nav {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        left: 10px;
+        z-index: 20;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        margin: 0;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 14px 40px rgba(23, 33, 43, 0.16);
+      }
+
+      .nav a {
+        justify-content: center;
+        min-height: 46px;
+        padding: 6px;
+      }
+
+      .nav span:last-child {
+        display: none;
+      }
+
+      .main {
+        order: 1;
+        padding: 18px;
+      }
+
+      .metrics,
+      .meal-grid,
+      .today-menu,
+      .habits {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .menu-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .log-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .log-form .button {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        display: grid;
+      }
+
+      .topbar h2 {
+        font-size: 24px;
+      }
+
+      .field-row,
+      .metrics,
+      .meal-grid,
+      .today-menu,
+      .habits,
+      .chart-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-row {
+        grid-template-columns: 1fr;
+      }
+
+      .ring {
+        margin-inline: auto;
+      }
+
+      .main {
+        padding: 14px;
+      }
+
+      .module,
+      .metric {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side" aria-label="个人档案">
+      <div class="brand">
+        <div class="brand-mark">PF</div>
+        <div>
+          <h1>梨形减脂仪表盘</h1>
+          <p>162cm / 62kg 默认档案</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="页面导航">
+        <a href="#dashboard"><span class="nav-icon">01</span><span>概览</span></a>
+        <a href="#nutrition"><span class="nav-icon">02</span><span>饮食</span></a>
+        <a href="#training"><span class="nav-icon">03</span><span>训练</span></a>
+        <a href="#tracker"><span class="nav-icon">04</span><span>记录</span></a>
+      </nav>
+
+      <form id="profileForm" class="form-stack">
+        <div class="field-row">
+          <div class="field">
+            <label for="height">身高 cm</label>
+            <input id="height" name="height" type="number" min="120" max="220" step="1" value="162">
+          </div>
+          <div class="field">
+            <label for="weight">当前体重 kg</label>
+            <input id="weight" name="weight" type="number" min="35" max="180" step="0.1" value="62">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="age">年龄</label>
+            <input id="age" name="age" type="number" min="16" max="80" step="1" value="30">
+          </div>
+          <div class="field">
+            <label>生理性别</label>
+            <div class="segmented" role="radiogroup" aria-label="生理性别">
+              <input id="sexFemale" type="radio" name="sex" value="female" checked>
+              <label for="sexFemale">女</label>
+              <input id="sexMale" type="radio" name="sex" value="male">
+              <label for="sexMale">男</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="activity">日常活动量</label>
+          <select id="activity" name="activity">
+            <option value="1.2">久坐：很少运动</option>
+            <option value="1.375" selected>轻活动：每周 1-3 次</option>
+            <option value="1.55">中等：每周 3-5 次</option>
+            <option value="1.725">较高：每周 6-7 次</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="city">常住城市</label>
+            <input id="city" name="city" type="text" value="深圳" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="coffeeCups">咖啡 杯/天</label>
+            <input id="coffeeCups" name="coffeeCups" type="number" min="0" max="3" step="1" value="1">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="avoidFoods">不喜欢 / 避开</label>
+          <input id="avoidFoods" name="avoidFoods" type="text" value="牛肉">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="targetWeight">目标体重 kg</label>
+            <input id="targetWeight" name="targetWeight" type="number" min="40" max="90" step="0.1" value="58">
+          </div>
+          <div class="field">
+            <label for="lossRate">目标速度 kg/周</label>
+            <input id="lossRate" name="lossRate" type="number" min="0.1" max="0.8" step="0.1" value="0.4">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="waist">腰围 cm</label>
+            <input id="waist" name="waist" type="number" min="45" max="140" step="0.5" value="72">
+          </div>
+          <div class="field">
+            <label for="hip">臀围 cm</label>
+            <input id="hip" name="hip" type="number" min="60" max="160" step="0.5" value="98">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="steps">步数目标</label>
+            <input id="steps" name="steps" type="number" min="3000" max="20000" step="500" value="8500">
+          </div>
+          <div class="field">
+            <label for="sleep">睡眠目标 h</label>
+            <input id="sleep" name="sleep" type="number" min="5" max="10" step="0.5" value="7.5">
+          </div>
+        </div>
+      </form>
+
+      <div class="side-actions">
+        <button class="button primary" id="exportPlan" type="button">下载计划</button>
+        <button class="button" id="resetData" type="button">重置</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="dashboard" class="layout" aria-labelledby="dashboardTitle">
+        <div class="topbar">
+          <div>
+            <h2 id="dashboardTitle">你的减脂控制台</h2>
+            <p id="headline">正在根据你的档案生成计划。</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="install-button" id="installApp" type="button" hidden>安装 App</button>
+            <div class="status-pill"><span class="dot"></span><span id="statusText">本地保存已开启</span></div>
+          </div>
+        </div>
+
+        <div class="overview">
+          <section class="scene-panel" aria-labelledby="sceneTitle">
+            <div class="scene-head">
+              <h3 id="sceneTitle">今日重点</h3>
+              <span id="todayText">今天</span>
+            </div>
+            <canvas id="fitScene" width="720" height="360" aria-label="饮食、训练和记录的视觉概览"></canvas>
+          </section>
+
+          <section class="metrics" aria-label="核心指标">
+            <article class="metric">
+              <div class="metric-top">
+                <h3>BMI</h3>
+                <span class="badge" id="bmiBadge">计算中</span>
+              </div>
+              <p class="metric-value"><span id="bmiValue">--</span></p>
+              <p class="metric-note" id="bmiNote">基于身高和体重估算。</p>
+            </article>
+
+            <article class="metric">
+              <div class="metric-top">
+                <h3>每日热量</h3>
+                <span class="badge coral" id="deficitBadge">温和缺口</span>
+              </div>
+              <p class="metric-value"><span id="calorieValue">--</span> <small>kcal</small></p>
+              <p class="metric-note" id="calorieNote">按活动量和目标速度估算。</p>
+            </article>
+
+            <article class="metric">
+              <div class="metric-top">
+                <h3>目标周期</h3>
+                <span class="badge gold" id="timelineBadge">12 周内</span>
+              </div>
+              <p class="metric-value"><span id="weeksValue">--</span> <small>周</small></p>
+              <div>
+                <div class="progress-track"><div class="progress-bar" id="targetProgress"></div></div>
+                <p class="metric-note" id="targetNote">目标进度估算。</p>
+              </div>
+            </article>
+
+            <article class="metric">
+              <div class="metric-top">
+                <h3>梨形重点</h3>
+                <span class="badge" id="ratioBadge">腰臀比</span>
+              </div>
+              <p class="metric-value"><span id="ratioValue">--</span></p>
+              <p class="metric-note">整体减脂加力量训练，改善比例和线条。</p>
+            </article>
+          </section>
+        </div>
+
+        <div class="grid-2" id="nutrition">
+          <section class="module" aria-labelledby="macroTitle">
+            <div class="module-head">
+              <div>
+                <h3 id="macroTitle">营养配比</h3>
+                <p id="macroSubtitle">优先保证蛋白质和蔬菜，再分配脂肪与碳水。</p>
+              </div>
+              <span class="badge" id="proteinBadge">蛋白优先</span>
+            </div>
+            <div class="chart-wrap">
+              <div class="ring" id="calorieRing" aria-label="目标热量占维持热量比例">
+                <div class="ring-text"><span id="ringPercent">--%</span><small>维持热量</small></div>
+              </div>
+              <div class="macro-list" id="macroList"></div>
+            </div>
+          </section>
+
+          <section class="module" aria-labelledby="mealTitle">
+            <div class="module-head">
+              <div>
+                <h3 id="mealTitle">一日餐盘</h3>
+                <p>用手掌估份，减少称重压力。</p>
+              </div>
+              <span class="badge coral" id="mealBadge">可替换</span>
+            </div>
+            <div class="meal-grid" id="mealGrid"></div>
+          </section>
+        </div>
+
+        <section class="module" id="daily-menu" aria-labelledby="dailyMenuTitle">
+          <div class="module-head">
+            <div>
+              <h3 id="dailyMenuTitle">深圳每日饮食计划</h3>
+              <p id="dailyMenuSubtitle">避开牛肉，保留咖啡，用广东常见食材和水果做 7 天轮换。</p>
+            </div>
+            <span class="badge" id="dailyMenuBadge">深圳 / 咖啡</span>
+          </div>
+          <div class="daily-menu">
+            <div class="today-menu" id="todayMenu"></div>
+            <p class="coffee-note" id="coffeeNote">咖啡默认安排在上午，尽量不加糖浆和奶油。</p>
+            <div class="menu-divider"></div>
+            <div class="weekly-menu" id="weeklyMenu"></div>
+          </div>
+        </section>
+
+        <section class="module" id="training" aria-labelledby="trainingTitle">
+          <div class="module-head">
+            <div>
+              <h3 id="trainingTitle">一周训练</h3>
+              <p id="trainingSubtitle">梨形身材不做局部减脂承诺，重点是稳定热量缺口、全身力量和低冲击有氧。</p>
+            </div>
+            <span class="badge" id="trainingBadge">3 力量 + 3 有氧</span>
+          </div>
+          <div class="plan-grid" id="planGrid"></div>
+        </section>
+
+        <section class="module" aria-labelledby="habitTitle">
+          <div class="module-head">
+            <div>
+              <h3 id="habitTitle">今日打卡</h3>
+              <p id="habitSubtitle">四个动作完成越多，明天越容易继续。</p>
+            </div>
+            <span class="badge" id="habitBadge">0 / 4</span>
+          </div>
+          <div class="habits" id="habitGrid"></div>
+        </section>
+
+        <section class="module" id="tracker" aria-labelledby="trackerTitle">
+          <div class="module-head">
+            <div>
+              <h3 id="trackerTitle">围度与体重记录</h3>
+              <p>梨形减脂看趋势，不被单日体重牵着走。</p>
+            </div>
+            <span class="badge gold" id="logBadge">最近 8 条</span>
+          </div>
+          <form class="log-form" id="logForm">
+            <label class="mini-label">体重 kg<input id="logWeight" type="number" min="35" max="180" step="0.1"></label>
+            <label class="mini-label">腰围 cm<input id="logWaist" type="number" min="45" max="140" step="0.5"></label>
+            <label class="mini-label">臀围 cm<input id="logHip" type="number" min="60" max="160" step="0.5"></label>
+            <label class="mini-label">大腿 cm<input id="logThigh" type="number" min="35" max="90" step="0.5" value="56"></label>
+            <button class="button primary" type="submit">记录今天</button>
+          </form>
+          <div class="trend-area">
+            <canvas id="trendCanvas" width="780" height="260" aria-label="体重趋势图"></canvas>
+            <div class="history" id="historyList"></div>
+          </div>
+        </section>
+
+        <section class="notice" aria-label="健康提醒">
+          <strong>提醒</strong>
+          <span id="safetyNotice">如果你有孕期、哺乳期、糖尿病、甲状腺疾病、饮食障碍史、持续疼痛或月经明显紊乱，请先咨询医生或注册营养师。这个工具只做生活方式规划，不替代医疗建议。</span>
+        </section>
+
+        <section class="refs" aria-label="参考资料">
+          参考：<a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html" target="_blank" rel="noreferrer">CDC 成人 BMI 分类</a>、
+          <a href="https://www.cdc.gov/healthy-weight-growth/losing-weight/index.html" target="_blank" rel="noreferrer">CDC 体重管理建议</a>、
+          <a href="https://odphp.health.gov/our-work/nutrition-physical-activity/physical-activity-guidelines/current-guidelines" target="_blank" rel="noreferrer">美国体力活动指南</a>、
+          <a href="https://www.who.int/news-room/fact-sheets/detail/physical-activity" target="_blank" rel="noreferrer">WHO 身体活动资料</a>。
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "pearfit-personal-app-v1";
+    const DEFAULT_STATE = {
+      height: 162,
+      weight: 62,
+      age: 30,
+      sex: "female",
+      activity: 1.375,
+      city: "深圳",
+      avoidFoods: "牛肉",
+      coffeeCups: 1,
+      targetWeight: 58,
+      lossRate: 0.4,
+      waist: 72,
+      hip: 98,
+      steps: 8500,
+      sleep: 7.5,
+      thigh: 56,
+      habits: {},
+      history: []
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    const form = $("#profileForm");
+    const toast = $("#toast");
+    const installAppButton = $("#installApp");
+    let state = loadState();
+    let deferredInstallPrompt = null;
+
+    function todayKey() {
+      const date = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    }
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const round = (value, digits = 0) => Number(value.toFixed(digits));
+    const kgToKcal = 7700;
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return { ...DEFAULT_STATE, ...saved, habits: saved?.habits || {}, history: saved?.history || [] };
+      } catch {
+        return { ...DEFAULT_STATE };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      $("#statusText").textContent = "本地保存已开启";
+    }
+
+    function numberFromInput(id) {
+      const value = Number($(id).value);
+      return Number.isFinite(value) ? value : DEFAULT_STATE[id.slice(1)];
+    }
+
+    function syncForm() {
+      $("#height").value = state.height;
+      $("#weight").value = state.weight;
+      $("#age").value = state.age;
+      $(`input[name="sex"][value="${state.sex}"]`).checked = true;
+      $("#activity").value = String(state.activity);
+      $("#city").value = state.city;
+      $("#coffeeCups").value = state.coffeeCups;
+      $("#avoidFoods").value = state.avoidFoods;
+      $("#targetWeight").value = state.targetWeight;
+      $("#lossRate").value = state.lossRate;
+      $("#waist").value = state.waist;
+      $("#hip").value = state.hip;
+      $("#steps").value = state.steps;
+      $("#sleep").value = state.sleep;
+      $("#logWeight").value = state.weight;
+      $("#logWaist").value = state.waist;
+      $("#logHip").value = state.hip;
+      $("#logThigh").value = state.thigh;
+    }
+
+    function readForm() {
+      state.height = numberFromInput("#height");
+      state.weight = numberFromInput("#weight");
+      state.age = numberFromInput("#age");
+      state.sex = $("input[name='sex']:checked").value;
+      state.activity = numberFromInput("#activity");
+      state.city = $("#city").value.trim() || DEFAULT_STATE.city;
+      state.coffeeCups = clamp(numberFromInput("#coffeeCups"), 0, 3);
+      state.avoidFoods = $("#avoidFoods").value.trim() || DEFAULT_STATE.avoidFoods;
+      state.targetWeight = numberFromInput("#targetWeight");
+      state.lossRate = numberFromInput("#lossRate");
+      state.waist = numberFromInput("#waist");
+      state.hip = numberFromInput("#hip");
+      state.steps = numberFromInput("#steps");
+      state.sleep = numberFromInput("#sleep");
+    }
+
+    function getMetrics() {
+      const heightM = state.height / 100;
+      const bmi = state.weight / (heightM * heightM);
+      const healthyMin = 18.5 * heightM * heightM;
+      const healthyMax = 24.9 * heightM * heightM;
+      const bmr = (10 * state.weight) + (6.25 * state.height) - (5 * state.age) + (state.sex === "male" ? 5 : -161);
+      const tdee = bmr * state.activity;
+      const requestedDeficit = (state.lossRate * kgToKcal) / 7;
+      const minimumCalories = state.sex === "male" ? 1500 : 1200;
+      const cappedDeficit = clamp(requestedDeficit, 250, Math.max(250, Math.min(600, tdee - minimumCalories)));
+      const calories = Math.max(minimumCalories, tdee - cappedDeficit);
+      const protein = clamp(state.weight * 1.6, 75, 140);
+      const fat = clamp(state.weight * 0.8, 42, 76);
+      const carbs = Math.max(90, (calories - (protein * 4) - (fat * 9)) / 4);
+      const weightToLose = Math.max(0, state.weight - state.targetWeight);
+      const weeks = weightToLose > 0 ? Math.ceil(weightToLose / Math.max(0.1, state.lossRate)) : 0;
+      const ratio = state.waist / state.hip;
+      const sortedHistory = [...state.history].sort((a, b) => a.date.localeCompare(b.date));
+      const startWeight = sortedHistory[0]?.weight || DEFAULT_STATE.weight;
+      const latestWeight = sortedHistory.at(-1)?.weight || state.weight;
+      const totalRange = Math.max(1, startWeight - state.targetWeight);
+      const progress = clamp(((startWeight - latestWeight) / totalRange) * 100, 0, 100);
+
+      return {
+        bmi,
+        healthyMin,
+        healthyMax,
+        bmr,
+        tdee,
+        deficit: tdee - calories,
+        calories,
+        protein,
+        fat,
+        carbs,
+        weeks,
+        ratio,
+        progress
+      };
+    }
+
+    function bmiLabel(bmi) {
+      if (bmi < 18.5) return { text: "偏低", tone: "gold" };
+      if (bmi < 25) return { text: "健康范围", tone: "" };
+      if (bmi < 30) return { text: "超重范围", tone: "coral" };
+      return { text: "肥胖范围", tone: "coral" };
+    }
+
+    function render() {
+      const metrics = getMetrics();
+      renderHeadline(metrics);
+      renderMetrics(metrics);
+      renderMacros(metrics);
+      renderMeals(metrics);
+      renderDailyMenu(metrics);
+      renderTraining(metrics);
+      renderHabits(metrics);
+      renderHistory();
+      drawScene(metrics);
+      drawTrend();
+      saveState();
+    }
+
+    function renderHeadline(metrics) {
+      const target = round(state.targetWeight, 1);
+      const date = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(new Date());
+      $("#todayText").textContent = date;
+      $("#headline").textContent = `按当前档案，你的 BMI 为 ${round(metrics.bmi, 1)}，目标 ${target}kg 约需 ${metrics.weeks || 1} 周。当前重点是每日约 ${Math.round(metrics.calories)} kcal、蛋白 ${Math.round(metrics.protein)}g、步数 ${Math.round(state.steps)}。`;
+    }
+
+    function renderMetrics(metrics) {
+      const label = bmiLabel(metrics.bmi);
+      const bmiBadge = $("#bmiBadge");
+      bmiBadge.textContent = label.text;
+      bmiBadge.className = `badge ${label.tone}`;
+      $("#bmiValue").textContent = round(metrics.bmi, 1);
+      const targetSafety = state.targetWeight < metrics.healthyMin ? "目标低于健康 BMI 下限，建议调高。" : "目标在健康范围内。";
+      $("#bmiNote").textContent = `${state.height}cm 时健康体重约 ${round(metrics.healthyMin, 1)}-${round(metrics.healthyMax, 1)}kg；${targetSafety}`;
+      $("#calorieValue").textContent = Math.round(metrics.calories);
+      $("#deficitBadge").textContent = `缺口 ${Math.round(metrics.deficit)} kcal`;
+      $("#calorieNote").textContent = `估算维持热量 ${Math.round(metrics.tdee)} kcal；目标速度 ${state.lossRate}kg/周。`;
+      $("#weeksValue").textContent = metrics.weeks || 1;
+      $("#timelineBadge").textContent = metrics.weeks <= 12 ? "12 周内" : `${metrics.weeks} 周`;
+      $("#targetProgress").style.width = `${metrics.progress}%`;
+      $("#targetNote").textContent = `从 ${state.weight}kg 到 ${state.targetWeight}kg，建议每 2 周复盘一次。`;
+      $("#ratioValue").textContent = round(metrics.ratio, 2);
+      $("#ratioBadge").textContent = metrics.ratio < 0.8 ? "梨形明显" : "比例均衡";
+      $("#ratioBadge").className = `badge ${metrics.ratio < 0.8 ? "gold" : ""}`;
+    }
+
+    function renderMacros(metrics) {
+      const macroCalories = {
+        protein: metrics.protein * 4,
+        carbs: metrics.carbs * 4,
+        fat: metrics.fat * 9
+      };
+      const macros = [
+        { label: "蛋白质", grams: metrics.protein, kcal: macroCalories.protein },
+        { label: "碳水", grams: metrics.carbs, kcal: macroCalories.carbs },
+        { label: "脂肪", grams: metrics.fat, kcal: macroCalories.fat }
+      ];
+      const list = $("#macroList");
+      list.innerHTML = macros.map((item) => {
+        const percent = clamp((item.kcal / metrics.calories) * 100, 0, 100);
+        return `<div class="macro">
+          <span>${item.label}</span>
+          <div class="macro-line"><div class="macro-fill" style="width:${percent}%"></div></div>
+          <span>${Math.round(item.grams)}g</span>
+        </div>`;
+      }).join("");
+      const ringPercent = clamp((metrics.calories / metrics.tdee) * 100, 0, 100);
+      $("#calorieRing").style.setProperty("--ring", `${ringPercent}%`);
+      $("#ringPercent").textContent = `${Math.round(ringPercent)}%`;
+      $("#proteinBadge").textContent = `${Math.round(metrics.protein)}g 蛋白`;
+      $("#macroSubtitle").textContent = `估算每日 ${Math.round(metrics.calories)} kcal，训练日可把碳水集中在运动前后。`;
+    }
+
+    function renderMeals(metrics) {
+      const meals = [
+        {
+          title: "早餐",
+          text: `无糖酸奶或鸡蛋 + 全麦主食 + 一份水果，先拿到 25g 左右蛋白。`
+        },
+        {
+          title: "午餐",
+          text: `1 掌心瘦肉/豆制品 + 1 拳主食 + 2 拳蔬菜，油脂控制在 1 拇指。`
+        },
+        {
+          title: "晚餐",
+          text: `清淡蛋白 + 大量蔬菜；力量训练日保留半拳到 1 拳主食。`
+        },
+        {
+          title: "加餐",
+          text: `乳制品、蛋白饮、毛豆或水果，避免把饥饿拖到暴食。`
+        }
+      ];
+      $("#mealGrid").innerHTML = meals.map((meal) => `
+        <article class="meal-item">
+          <h4>${meal.title}</h4>
+          <p>${meal.text}</p>
+        </article>
+      `).join("");
+      $("#mealBadge").textContent = `${Math.round(metrics.calories)} kcal 框架`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function renderDailyMenu(metrics) {
+      const city = state.city || "深圳";
+      const avoidFoods = state.avoidFoods || "牛肉";
+      const coffeeCups = clamp(Number(state.coffeeCups) || 0, 0, 3);
+      const ricePortion = metrics.calories < 1400 ? "半碗" : "半碗到 1 碗";
+      const fruitPortion = metrics.calories < 1400 ? "150-200g" : "200g 左右";
+      const coffeeLabel = coffeeCups === 0 ? "不安排咖啡" : coffeeCups === 1 ? "1 杯咖啡" : `${coffeeCups} 杯内咖啡`;
+      const morningDrink = coffeeCups > 0 ? "无糖美式" : "无糖茶";
+      const latteDrink = coffeeCups > 0 ? "无糖拿铁" : "无糖豆浆";
+      const coldDrink = coffeeCups > 0 ? "冷萃" : "无糖茶";
+      const today = [
+        {
+          time: "08:00",
+          tag: "早餐",
+          title: `${morningDrink} + 鸡蛋燕麦`,
+          text: `${coffeeCups > 0 ? "咖啡 1 杯" : "无糖饮品 1 杯"}，鸡蛋 1-2 个，燕麦 30g 或全麦吐司 1 片，配番石榴 ${fruitPortion}。`
+        },
+        {
+          time: "10:30",
+          tag: "水果",
+          title: "广东水果加餐",
+          text: `火龙果、番石榴、木瓜、苹果任选 ${fruitPortion}；荔枝控制 6-8 颗。`
+        },
+        {
+          time: "12:30",
+          tag: "午餐",
+          title: "白切鸡去皮 + 青菜饭",
+          text: `鸡/鱼/虾 1 掌心，米饭 ${ricePortion}，菜心或芥兰 2 拳，冬瓜海带汤。`
+        },
+        {
+          time: "15:30",
+          tag: coffeeCups > 0 ? "咖啡" : "饮品",
+          title: coffeeCups > 1 ? "第二杯放在下午早些时候" : coffeeCups === 1 ? "想喝再喝半杯" : "无咖啡因补水",
+          text: coffeeCups > 0 ? "选美式、冷萃或无糖拿铁，不加糖浆奶油；睡眠浅就改成无咖啡因。" : "选无糖茶、苏打水或白水，保留晚间睡眠质量。"
+        },
+        {
+          time: "18:30",
+          tag: "晚餐",
+          title: "清蒸鱼/虾仁豆腐 + 蔬菜",
+          text: `主菜选鲈鱼、虾仁、豆腐或鸡胸；主食半份紫薯/玉米，避开 ${avoidFoods}。`
+        }
+      ];
+
+      const weekly = [
+        {
+          day: "周一",
+          breakfast: `${morningDrink} + 水煮蛋 2 个 + 燕麦`,
+          lunch: `去皮白切鸡 + 米饭 ${ricePortion} + 菜心`,
+          dinner: "清蒸鲈鱼 + 冬瓜汤 + 紫薯半个",
+          fruit: `番石榴 ${fruitPortion}`
+        },
+        {
+          day: "周二",
+          breakfast: `${latteDrink} + 虾仁蒸蛋 + 玉米半根`,
+          lunch: "客家酿豆腐 + 杂粮饭半碗 + 芥兰",
+          dinner: "虾仁西兰花 + 番茄豆腐汤",
+          fruit: `火龙果 ${fruitPortion}`
+        },
+        {
+          day: "周三",
+          breakfast: `${coldDrink} + 希腊酸奶 + 燕麦 25g`,
+          lunch: `清蒸鸡腿去皮 + 米饭 ${ricePortion} + 生菜`,
+          dinner: "蒸水蛋 + 菌菇青菜汤 + 红薯半个",
+          fruit: "芒果半个或苹果 1 个"
+        },
+        {
+          day: "周四",
+          breakfast: `${morningDrink} + 鸡蛋全麦三明治`,
+          lunch: "潮汕鱼片汤 + 半碗饭 + 烫青菜",
+          dinner: "鸡胸/瘦猪里脊 + 芥兰 + 玉米半根",
+          fruit: `木瓜 ${fruitPortion}`
+        },
+        {
+          day: "周五",
+          breakfast: `${latteDrink} + 豆浆 + 鸡蛋 1 个`,
+          lunch: "蒸虾/蒸鱼 + 杂粮饭半碗 + 西兰花",
+          dinner: "豆腐鸡肉蔬菜煲，少油少芡汁",
+          fruit: "蓝莓一小盒或橙子 1 个"
+        },
+        {
+          day: "周六",
+          breakfast: `${coffeeCups > 0 ? "咖啡" : "无糖茶"} + 金枪鱼鸡蛋全麦卷`,
+          lunch: "深圳海鲜蒸盘 + 米饭半碗 + 凉拌青瓜",
+          dinner: "鸡丝沙拉 + 南瓜小份 + 紫菜蛋花汤",
+          fruit: "荔枝 6-8 颗或西瓜 200g"
+        },
+        {
+          day: "周日",
+          breakfast: `${morningDrink} + 鸡蛋瘦肉粥小碗`,
+          lunch: `家常蒸鱼 + 米饭 ${ricePortion} + 蒜蓉油麦菜`,
+          dinner: "番茄豆腐菌菇汤 + 虾仁 + 红薯半个",
+          fruit: `番石榴或火龙果 ${fruitPortion}`
+        }
+      ];
+
+      $("#dailyMenuBadge").textContent = `${city} / 避开${avoidFoods} / ${coffeeLabel}`;
+      $("#dailyMenuSubtitle").textContent = `按约 ${Math.round(metrics.calories)} kcal、蛋白 ${Math.round(metrics.protein)}g 来排，食材偏深圳日常可买到的鸡、鱼、虾、蛋、豆制品和水果。`;
+      $("#todayMenu").innerHTML = today.map((item) => `
+        <article class="menu-card">
+          <div class="menu-time"><span>${escapeHtml(item.time)}</span><span>${escapeHtml(item.tag)}</span></div>
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.text)}</p>
+        </article>
+      `).join("");
+      $("#coffeeNote").textContent = coffeeCups === 0
+        ? "你当前设置为不喝咖啡，菜单会保留无糖茶、苏打水或白水作为替代。"
+        : `咖啡建议放在上午，最多按你设置的 ${coffeeCups} 杯内；优先美式、冷萃或无糖拿铁，下午 2 点后尽量不喝，避免影响睡眠和食欲。`;
+      $("#weeklyMenu").innerHTML = weekly.map((item) => `
+        <article class="menu-row">
+          <div class="menu-day">${escapeHtml(item.day)}</div>
+          <div class="meal-detail"><h4>早餐</h4><p>${escapeHtml(item.breakfast)}</p></div>
+          <div class="meal-detail"><h4>午餐</h4><p>${escapeHtml(item.lunch)}</p></div>
+          <div class="meal-detail"><h4>晚餐</h4><p>${escapeHtml(item.dinner)}</p></div>
+          <div class="meal-detail"><span class="fruit-chip">水果</span><p>${escapeHtml(item.fruit)}</p></div>
+        </article>
+      `).join("");
+    }
+
+    function renderTraining(metrics) {
+      const easyCardio = state.lossRate > 0.5 ? "快走 45-60 分钟" : "快走 35-45 分钟";
+      const plan = [
+        { day: "周一", tag: "力量", title: "臀腿后侧 + 拉", text: "臀桥 4x12，罗马尼亚硬拉 3x10，划船 3x12，死虫 3x10。" },
+        { day: "周二", tag: "有氧", title: easyCardio, text: `心率保持能说短句；完成 ${Math.round(state.steps)} 步。` },
+        { day: "周三", tag: "力量", title: "上肢推 + 核心", text: "俯卧撑/推举 3x10，下拉 3x12，侧桥 3x30 秒，深蹲轻量 3x12。" },
+        { day: "周四", tag: "恢复", title: "灵活性 + 低强度", text: "髋屈肌、臀中肌、小腿拉伸各 8 分钟，饭后走 15 分钟。" },
+        { day: "周五", tag: "力量", title: "全身循环", text: "台阶上步、硬拉、哑铃划船、农夫走，各 3-4 组。" },
+        { day: "周六", tag: "有氧", title: "骑行/椭圆机", text: "40 分钟低冲击，结束后做 10 分钟臀中肌激活。" },
+        { day: "周日", tag: "复盘", title: "散步 + 测量", text: "轻松步行，记录体重、腰围、臀围和能量状态。" }
+      ];
+      $("#planGrid").innerHTML = plan.map((item) => `
+        <article class="plan-item">
+          <div class="plan-day"><span>${item.day}</span><span>${item.tag}</span></div>
+          <h4>${item.title}</h4>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+      $("#trainingBadge").textContent = metrics.deficit > 500 ? "训练保守推进" : "3 力量 + 3 有氧";
+      $("#trainingSubtitle").textContent = `建议每周累计 150-300 分钟中等强度活动，并安排至少 2 天力量训练；当前计划按 ${Math.round(metrics.calories)} kcal 饮食配合。`;
+    }
+
+    function renderHabits(metrics) {
+      const key = todayKey();
+      const todayHabits = state.habits[key] || {};
+      const habits = [
+        { id: "protein", title: "蛋白达标", text: `接近 ${Math.round(metrics.protein)}g，分到 3 餐更轻松。` },
+        { id: "steps", title: "步数完成", text: `目标 ${Math.round(state.steps)} 步，饭后短走也计入。` },
+        { id: "training", title: "训练/拉伸", text: "完成计划训练，或做 20 分钟恢复活动。" },
+        { id: "sleep", title: "睡眠优先", text: `目标 ${state.sleep} 小时，睡前减少高刺激内容。` }
+      ];
+      $("#habitGrid").innerHTML = habits.map((habit) => `
+        <label class="habit-item">
+          <input type="checkbox" data-habit="${habit.id}" ${todayHabits[habit.id] ? "checked" : ""}>
+          <span class="habit-title">${habit.title}<span class="checkmark">✓</span></span>
+          <p>${habit.text}</p>
+        </label>
+      `).join("");
+      const done = habits.filter((habit) => todayHabits[habit.id]).length;
+      $("#habitBadge").textContent = `${done} / ${habits.length}`;
+      $$("#habitGrid input").forEach((input) => {
+        input.addEventListener("change", () => {
+          const current = state.habits[key] || {};
+          current[input.dataset.habit] = input.checked;
+          state.habits[key] = current;
+          renderHabits(getMetrics());
+          saveState();
+        });
+      });
+    }
+
+    function renderHistory() {
+      const list = $("#historyList");
+      const history = getHistory();
+      $("#logBadge").textContent = `最近 ${Math.min(history.length, 8)} 条`;
+      list.innerHTML = history.slice(0, 8).map((item) => `
+        <div class="history-row">
+          <span>${item.date}</span>
+          <span><strong>${round(item.weight, 1)}kg</strong> / 腰 ${round(item.waist, 1)} / 臀 ${round(item.hip, 1)}</span>
+        </div>
+      `).join("");
+    }
+
+    function getHistory() {
+      if (state.history.length) return [...state.history].sort((a, b) => b.date.localeCompare(a.date));
+      const start = new Date();
+      return Array.from({ length: 5 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() - (4 - index) * 7);
+        const drift = (4 - index) * 0.18;
+        return {
+          date: date.toISOString().slice(0, 10),
+          weight: state.weight + drift,
+          waist: state.waist + drift * 1.2,
+          hip: state.hip + drift * 0.4,
+          thigh: state.thigh + drift * 0.3
+        };
+      }).sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function drawScene(metrics) {
+      const canvas = $("#fitScene");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#f8fbfc";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = "#e4eeec";
+      ctx.fillRect(0, 246, w, 114);
+      ctx.fillStyle = "#d5e5e2";
+      ctx.fillRect(0, 284, w, 8);
+
+      ctx.fillStyle = "#17212b";
+      roundedRect(ctx, 42, 34, 190, 204, 8);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 18px Microsoft YaHei, Arial";
+      ctx.fillText("今日计划", 64, 70);
+      drawChecklist(ctx, 66, 98, "蛋白 " + Math.round(metrics.protein) + "g", true);
+      drawChecklist(ctx, 66, 132, "步数 " + Math.round(state.steps), false);
+      drawChecklist(ctx, 66, 166, "力量 / 有氧", false);
+      ctx.fillStyle = "#2b8f8b";
+      roundedRect(ctx, 64, 192, 108, 24, 6);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = "800 13px Microsoft YaHei, Arial";
+      ctx.fillText(Math.round(metrics.calories) + " kcal", 78, 209);
+
+      ctx.fillStyle = "#f7e1dc";
+      roundedRect(ctx, 300, 68, 92, 178, 44);
+      ctx.fill();
+      ctx.fillStyle = "#17212b";
+      ctx.beginPath();
+      ctx.arc(346, 45, 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#17212b";
+      ctx.lineWidth = 14;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(318, 122);
+      ctx.lineTo(284, 170);
+      ctx.moveTo(374, 122);
+      ctx.lineTo(420, 158);
+      ctx.moveTo(330, 238);
+      ctx.lineTo(300, 308);
+      ctx.moveTo(364, 238);
+      ctx.lineTo(408, 306);
+      ctx.stroke();
+      ctx.strokeStyle = "#dd685b";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(314, 108);
+      ctx.lineTo(378, 108);
+      ctx.stroke();
+
+      drawPlate(ctx, 520, 142);
+      ctx.fillStyle = "#17212b";
+      ctx.font = "900 28px Microsoft YaHei, Arial";
+      ctx.fillText(round(metrics.bmi, 1), 494, 272);
+      ctx.fillStyle = "#64727f";
+      ctx.font = "800 13px Microsoft YaHei, Arial";
+      ctx.fillText("BMI 健康区间内", 472, 296);
+    }
+
+    function drawChecklist(ctx, x, y, text, checked) {
+      ctx.strokeStyle = "#86aaa6";
+      ctx.lineWidth = 2;
+      roundedRect(ctx, x, y - 17, 18, 18, 4);
+      ctx.stroke();
+      if (checked) {
+        ctx.strokeStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(x + 4, y - 8);
+        ctx.lineTo(x + 8, y - 4);
+        ctx.lineTo(x + 15, y - 14);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 13px Microsoft YaHei, Arial";
+      ctx.fillText(text, x + 30, y - 2);
+    }
+
+    function drawPlate(ctx, cx, cy) {
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 72, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#dce3e8";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = "#438b5b";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 58, -Math.PI / 2, Math.PI / 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#bd8b2d";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 58, Math.PI / 4, Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#dd685b";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 58, Math.PI, Math.PI * 1.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#17212b";
+      ctx.font = "800 12px Microsoft YaHei, Arial";
+      ctx.fillText("餐盘", cx - 13, cy + 4);
+    }
+
+    function drawTrend() {
+      const canvas = $("#trendCanvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      const history = [...getHistory()].sort((a, b) => a.date.localeCompare(b.date));
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "#edf1f4";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 5; i += 1) {
+        const y = 34 + i * 42;
+        ctx.beginPath();
+        ctx.moveTo(54, y);
+        ctx.lineTo(w - 26, y);
+        ctx.stroke();
+      }
+      const weights = history.map((item) => item.weight).concat([state.targetWeight]);
+      const min = Math.min(...weights) - 0.8;
+      const max = Math.max(...weights) + 0.8;
+      const plot = (item, index) => {
+        const x = 58 + (index / Math.max(1, history.length - 1)) * (w - 96);
+        const y = 214 - ((item.weight - min) / (max - min)) * 166;
+        return { x, y };
+      };
+      ctx.strokeStyle = "#2b8f8b";
+      ctx.lineWidth = 4;
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      history.forEach((item, index) => {
+        const p = plot(item, index);
+        if (index === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      history.forEach((item, index) => {
+        const p = plot(item, index);
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#176b68";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      });
+      const targetY = 214 - ((state.targetWeight - min) / (max - min)) * 166;
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = "#dd685b";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(54, targetY);
+      ctx.lineTo(w - 26, targetY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#64727f";
+      ctx.font = "800 12px Microsoft YaHei, Arial";
+      ctx.fillText("目标 " + state.targetWeight + "kg", 58, targetY - 8);
+      ctx.fillText(round(max, 1) + "kg", 12, 38);
+      ctx.fillText(round(min, 1) + "kg", 12, 216);
+    }
+
+    function roundedRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+
+    function isStandaloneApp() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+    }
+
+    function initMobileApp() {
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {
+          $("#statusText").textContent = "本地保存已开启";
+        });
+      }
+
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        installAppButton.hidden = isStandaloneApp();
+      });
+
+      window.addEventListener("appinstalled", () => {
+        deferredInstallPrompt = null;
+        installAppButton.hidden = true;
+        showToast("已安装到手机桌面。");
+      });
+
+      const mobileLike = window.matchMedia("(max-width: 900px)").matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      installAppButton.hidden = isStandaloneApp() || (!mobileLike && !deferredInstallPrompt);
+    }
+
+    installAppButton.addEventListener("click", async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installAppButton.hidden = true;
+        return;
+      }
+
+      if (location.protocol === "file:") {
+        showToast("手机安装需要通过 HTTPS 或本地服务器打开。");
+        return;
+      }
+
+      showToast("iPhone 用 Safari 分享菜单添加到主屏幕；Android 用浏览器安装应用。");
+    });
+
+    form.addEventListener("input", () => {
+      readForm();
+      render();
+    });
+
+    form.addEventListener("change", () => {
+      readForm();
+      render();
+    });
+
+    $("#logForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const entry = {
+        date: todayKey(),
+        weight: Number($("#logWeight").value),
+        waist: Number($("#logWaist").value),
+        hip: Number($("#logHip").value),
+        thigh: Number($("#logThigh").value)
+      };
+      state.history = [entry, ...state.history.filter((item) => item.date !== entry.date)].slice(0, 30);
+      state.weight = entry.weight;
+      state.waist = entry.waist;
+      state.hip = entry.hip;
+      state.thigh = entry.thigh;
+      syncForm();
+      render();
+      showToast("今天的记录已保存。");
+    });
+
+    $("#resetData").addEventListener("click", () => {
+      if (!confirm("确认重置为 162cm / 62kg 默认档案？")) return;
+      state = { ...DEFAULT_STATE, habits: {}, history: [] };
+      localStorage.removeItem(STORAGE_KEY);
+      syncForm();
+      render();
+      showToast("已重置默认档案。");
+    });
+
+    $("#exportPlan").addEventListener("click", () => {
+      const metrics = getMetrics();
+      const coffeeExport = Number(state.coffeeCups) > 0 ? "早餐保留无糖咖啡" : "早餐用无糖茶或白水替代咖啡";
+      const lines = [
+        "梨形减脂计划",
+        `身高：${state.height}cm`,
+        `体重：${state.weight}kg`,
+        `目标：${state.targetWeight}kg，约 ${metrics.weeks || 1} 周`,
+        `城市与偏好：${state.city}，避开 ${state.avoidFoods}，咖啡 ${state.coffeeCups} 杯/天`,
+        `每日热量：${Math.round(metrics.calories)} kcal`,
+        `蛋白质：${Math.round(metrics.protein)}g，碳水：${Math.round(metrics.carbs)}g，脂肪：${Math.round(metrics.fat)}g`,
+        `饮食：${coffeeExport}，午晚餐以鸡、鱼、虾、蛋、豆制品搭配青菜和半碗主食；水果每天 150-200g，荔枝等高甜水果控制份量。`,
+        `步数：${Math.round(state.steps)}，睡眠：${state.sleep}h`,
+        "训练：每周 3 天力量，2-3 天中等强度有氧，1 天恢复复盘。"
+      ];
+      const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "pearfit-plan.txt";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("计划已下载。");
+    });
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    initMobileApp();
+    syncForm();
+    render();
+  </script>
+</body>
+</html>
